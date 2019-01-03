@@ -1,0 +1,105 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.1.RELEASE'
+    }
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group 'com.thtf'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+configurations {
+    mybatisGenerator
+}
+
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.2')
+    implementation('com.alibaba:druid-spring-boot-starter:1.1.10')
+    runtimeOnly('org.springframework.boot:spring-boot-devtools')
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.13'
+    compile group: 'cn.wanghaomiao', name: 'SeimiCrawler', version: '2.0'
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+    compile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.3.2'
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter-test', version: '1.3.2'
+
+    mybatisGenerator 'org.mybatis.generator:mybatis-generator-core:1.3.2'
+    mybatisGenerator 'mysql:mysql-connector-java:8.0.13'
+    mybatisGenerator 'tk.mybatis:mapper:3.3.2'
+
+}
+
+def getDbProperties = {
+    def properties = new Properties()
+    file("src/main/resources/mybatis/jdbc.properties").withInputStream { inputStream ->
+        properties.load(inputStream)
+    }
+    properties
+}
+
+jar {
+    baseName = 'IPProxysPool'
+    version = '0.0.1'
+    manifest {
+        attributes "Manifest-Version": 1.0,
+                'Main-Class': 'com.kteck.ApiApplication'
+    }
+}
+
+
+task mybatisGenerate << {
+    def properties = getDbProperties()
+    ant.properties['targetProject'] = projectDir.path
+    ant.properties['driverClass'] = properties.getProperty("jdbc.driverClassName")
+    ant.properties['connectionURL'] = properties.getProperty("jdbc.url")
+    ant.properties['userId'] = properties.getProperty("jdbc.username")
+    ant.properties['password'] = properties.getProperty("jdbc.password")
+    ant.properties['src_main_java'] = sourceSets.main.java.srcDirs[0].path
+    ant.properties['src_main_resources'] = sourceSets.main.resources.srcDirs[0].path
+    ant.properties['modelPackage'] = properties.getProperty("package.model")
+    ant.properties['mapperPackage'] = properties.getProperty("package.mapper")
+    ant.properties['sqlMapperPackage'] = properties.getProperty("package.xml")
+    ant.taskdef(
+            name: 'mbgenerator',
+            classname: 'org.mybatis.generator.ant.GeneratorAntTask',
+            classpath: configurations.mybatisGenerator.asPath
+    )
+    ant.mbgenerator(overwrite: true,
+            configfile: 'src/main/resources/mybatis/generatorConfig.xml', verbose: true) {
+        propertyset {
+            propertyref(name: 'targetProject')
+            propertyref(name: 'userId')
+            propertyref(name: 'driverClass')
+            propertyref(name: 'connectionURL')
+            propertyref(name: 'password')
+            propertyref(name: 'src_main_java')
+            propertyref(name: 'src_main_resources')
+            propertyref(name: 'modelPackage')
+            propertyref(name: 'mapperPackage')
+            propertyref(name: 'sqlMapperPackage')
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+}

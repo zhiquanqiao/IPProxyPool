@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ip proxy pool</title>
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}">
+    <script type="text/javascript" th:src="@{js/jquery-3.3.1.min.js}"/>
+    <script th:src="@{js/bootstrap.min.js}"></script>
+    <style type="text/css">
+
+        .add_content {
+            border: 2px;
+            border-radius: 5px;
+        }
+
+        .container-fluid {
+            margin: 10px;
+            padding: 20px;
+        }
+
+        .list_content {
+            padding-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid ">
+    <div class="row-fluid add_content">
+        <div class="span12">
+            <h3>
+                add proxys information
+            </h3>
+            <form class="form-horizontal" role="form" action="/proxys/add" method="post">
+
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">name:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="please input proxys name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="urls" class="col-sm-2 control-label">urls:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="urls" name="urls"
+                               placeholder="please input proxys url">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="type" class="col-sm-2 control-label">type:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="type" name="type"
+                               placeholder="please input proxys type">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pattern" class="col-sm-2 control-label">pattern:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="pattern" name="pattern"
+                               placeholder="please input proxys pattern">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="position" class="col-sm-2 control-label">position:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="position" name="position"
+                               placeholder="please input proxys position ">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="params" class="col-sm-2 control-label">params:</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="params" name="params"
+                               placeholder="please input proxys params">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-3">
+                        <button id="submit" class="btn btn-default">submit</button>
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-3">
+                        <button type="reset" class="btn btn-default">reset</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row-fluid list_content">
+        <div class="span8 list_form">
+            <h3>
+                net information
+            </h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="col-sm-1">
+                        id
+                    </th>
+                    <th class="col-sm-2">
+                        urls
+                    </th>
+                    <th class="col-sm-1">
+                        type
+                    </th>
+                    <th class="col-sm-3">
+                        pattern
+                    </th>
+                    <th class="col-sm-3">
+                        position
+                    </th>
+                    <th class="col-sm-1">
+                        params
+                    </th>
+                    <th class="col-sm-1">
+                        operate
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-th-each="proxy  : ${proxys}">
+                    <td data-th-text="${proxy.id}"></td>
+                    <td data-th-text="${proxy.urls}"></td>
+                    <td data-th-text="${proxy.type}"></td>
+                    <td data-th-text="${proxy.pattern}"></td>
+                    <td data-th-text="${proxy.position}"></td>
+                    <td data-th-text="${proxy.params}"></td>
+
+                    <td>
+                        <button type="button" class="btn btn-success"><a th:href="@{'/proxy/delete/'+ ${proxy.id}}">
+                            delete</a></button>
+                        <button type="button" class="btn btn-link"><a th:href="@{'/proxy/test/'+${proxy.id}}">test</a>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
