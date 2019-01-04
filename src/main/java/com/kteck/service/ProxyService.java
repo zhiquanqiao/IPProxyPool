@@ -143,4 +143,8 @@ public class ProxyService {
     public List<Map<String,String>> getIpsByUrl(String url){
         return proxyIpNetRefMapper.getIpsByUrl(url);
     }
+
+    public void deleteProxyIpRef(Integer id) {
+        proxyIpNetRefMapper.deleteByPrimaryKey(id);
+    }
 }
