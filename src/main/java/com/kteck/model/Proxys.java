@@ -15,6 +15,8 @@ public class Proxys {
 
     private String params;
 
+    private String testUrl;
+
     public Integer getId() {
         return id;
     }
@@ -69,5 +71,13 @@ public class Proxys {
 
     public void setParams(String params) {
         this.params = params == null ? null : params.trim();
+    }
+
+    public String getTestUrl() {
+        return testUrl;
+    }
+
+    public void setTestUrl(String testUrl) {
+        this.testUrl = testUrl == null ? null : testUrl.trim();
     }
 }

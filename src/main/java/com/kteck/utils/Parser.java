@@ -1,7 +1,5 @@
 package com.kteck.utils;
 
-import org.seimicrawler.xpath.JXNode;
-
 /**
  * interface parser
  */

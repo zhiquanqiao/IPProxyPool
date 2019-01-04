@@ -1,14 +1,15 @@
 package com.kteck.service;
 
-import com.kteck.model.ProxyIpNetRef;
 import com.kteck.mapper.ProxyIpMapper;
 import com.kteck.mapper.ProxyIpNetRefMapper;
 import com.kteck.mapper.ProxyNetMapper;
 import com.kteck.mapper.ProxysMapper;
 import com.kteck.model.ProxyIp;
+import com.kteck.model.ProxyIpNetRef;
 import com.kteck.model.ProxyNet;
 import com.kteck.model.Proxys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,8 @@ public class ProxyService {
     private ProxyNetMapper proxyNetMapper;
     @Autowired
     private ProxysMapper proxysMapper;
-
+    @Value("${score.each}")
+    private byte eachScore;
     @Transactional
     public boolean insertNet(ProxyNet proxyNet) {
         proxyNetMapper.insert(proxyNet);
@@ -98,7 +100,7 @@ public class ProxyService {
         ProxyIpNetRef proxyIpNetRef = new ProxyIpNetRef();
         proxyIpNetRef.setIpId(proxyIp.getId());
         proxyIpNetRef.setNetId(proxyNet.getId());
-        proxyIpNetRef.setScore((byte) 10);
+        proxyIpNetRef.setScore(eachScore);
         proxyIpNetRefMapper.insert(proxyIpNetRef);
     }
 
@@ -135,5 +137,10 @@ public class ProxyService {
     public void deleteNotAvailableIp() {
         proxyIpNetRefMapper.deleteNotAvailableIpNetRef();
         proxyIpMapper.deleteNotAvailAbleIp();
+    }
+
+
+    public List<Map<String,String>> getIpsByUrl(String url){
+        return proxyIpNetRefMapper.getIpsByUrl(url);
     }
 }

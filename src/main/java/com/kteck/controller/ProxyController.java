@@ -1,9 +1,9 @@
 package com.kteck.controller;
 
 
-import com.kteck.service.ProxyService;
-import com.kteck.model.Proxys;
 import com.kteck.model.ProxyNet;
+import com.kteck.model.Proxys;
+import com.kteck.service.ProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

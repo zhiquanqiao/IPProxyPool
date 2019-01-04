@@ -4,22 +4,26 @@ import com.alibaba.fastjson.JSONObject;
 import com.kteck.model.ProxyIp;
 import com.kteck.model.Proxys;
 import com.kteck.utils.*;
-import com.kteck.utils.*;
 import org.seimicrawler.xpath.JXNode;
-//import utils.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+
+//import utils.*;
 
 public class Worker implements Callable {
     private static final int DEEP_LEVEL_FIRST = 1;
     private static final int DEEP_LEVEL_SECOND = 2;
-    private final Proxys proxys;
 
-    public Worker(Proxys proxys) {
+    private final Proxys proxys;
+    private final List<Map<String, String>> proxyList;
+
+    public Worker(Proxys proxys, List<Map<String, String>> proxyList) {
         this.proxys = proxys;
+        this.proxyList = proxyList;
     }
 
     @Override
@@ -28,34 +32,53 @@ public class Worker implements Callable {
         List<ProxyIp> results = new ArrayList<>();
         Downloader downloader = new HtmlDownloader();
         for (String url : urls) {
-            try {
-                String html = downloader.download(HttpMethod.GET, url, null);
-                Parser parser = null;
-                if (proxys.getType().equals("xpath")) {
-                    parser = new XPathParser();
-                    List<JXNode> jxNodes = (List<JXNode>) parser.parse(proxys.getPattern(), html);
-                    JSONObject jsonObject = JSONObject.parseObject(proxys.getPosition());
-                    for (JXNode jxNode : jxNodes) {
-                        ProxyIp proxyIp = new ProxyIp();
-                        try {
-                            proxyIp.setIp(String.valueOf(parser.parse(jsonObject.getString("ip"), jxNode)));
-                            proxyIp.setPort(String.valueOf(parser.parse(jsonObject.getString("port"), jxNode)));
-                            proxyIp.setTypes(String.valueOf(parser.parse(jsonObject.getString("type"), jxNode)));
-                            proxyIp.setProtocol(String.valueOf(parser.parse(jsonObject.getString("protocol"), jxNode)));
-                            proxyIp.setUpdatetime(new Date());
-                            results.add(proxyIp);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                    }
+            if (proxyList == null || proxyList.size() == 0) {
+                try {
+                    crawWithProxy(results, downloader, url, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    continue;
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
+            } else {
+                for (Map<String, String> ipProxy : proxyList) {
+                    boolean crawlFlag = false;
+                    try {
+                        crawlFlag = crawWithProxy(results, downloader, url, ipProxy);
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    if (crawlFlag) break;
+                }
             }
         }
         return results;
+    }
+
+    private boolean crawWithProxy(List<ProxyIp> results, Downloader downloader, String url, Map<String, String> ipProxy) throws Exception {
+        boolean result = false;
+        String html = downloader.download(HttpMethod.GET, url, null, ipProxy);
+        Parser parser = null;
+        if (proxys.getType().equals("xpath")) {
+            parser = new XPathParser();
+            List<JXNode> jxNodes = (List<JXNode>) parser.parse(proxys.getPattern(), html);
+            JSONObject jsonObject = JSONObject.parseObject(proxys.getPosition());
+            for (JXNode jxNode : jxNodes) {
+                ProxyIp proxyIp = new ProxyIp();
+                try {
+                    proxyIp.setIp(String.valueOf(parser.parse(jsonObject.getString("ip"), jxNode)));
+                    proxyIp.setPort(String.valueOf(parser.parse(jsonObject.getString("port"), jxNode)));
+                    proxyIp.setTypes(String.valueOf(parser.parse(jsonObject.getString("type"), jxNode)));
+                    proxyIp.setProtocol(String.valueOf(parser.parse(jsonObject.getString("protocol"), jxNode)));
+                    proxyIp.setUpdatetime(new Date());
+                    results.add(proxyIp);
+
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            result = true;
+        }
+        return result;
     }
 
     /**

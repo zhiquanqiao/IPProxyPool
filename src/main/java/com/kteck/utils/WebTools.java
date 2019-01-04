@@ -93,7 +93,7 @@ public class WebTools {
      * @param data
      * @return
      */
-    public static Map<String, Object> post(String url, Map<String, String> data) throws IOException {
+    public static Map<String, Object> post(String url, Map<String, String> data, Map<String, String> proxy) throws IOException {
 
         Map<String, Object> result = null;
         CloseableHttpClient httpClient = getCloseableHttpClient();
@@ -144,13 +144,19 @@ public class WebTools {
     }
 
     public static Map<String, Object> get(String url, Map<String, String> proxyMap) throws IOException {
-        HttpHost proxy = new HttpHost(proxyMap.get("ip"),
-                Integer.parseInt(proxyMap.get("port")));
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setProxy(proxy)
-                .build();
+        CloseableHttpClient httpClient = null;
+        if (proxyMap == null) {
+            httpClient = HttpClients.createDefault();
+        } else {
+            HttpHost proxy = new HttpHost(proxyMap.get("ip"),
+                    Integer.parseInt(proxyMap.get("port")));
+            RequestConfig defaultRequestConfig = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .setSocketTimeout(5000).setConnectTimeout(5000)
+                    .build();
+            httpClient = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
+        }
 
-        CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("User-Agent", Headers.randomHeader());
         CloseableHttpResponse response = httpClient.execute(httpGet);

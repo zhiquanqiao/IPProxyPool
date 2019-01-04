@@ -1,7 +1,7 @@
 package com.kteck.validator;
 
-import com.kteck.model.ProxyIpNetRef;
 import com.kteck.model.ProxyIp;
+import com.kteck.model.ProxyIpNetRef;
 import com.kteck.model.ProxyNet;
 import com.kteck.model.ValidateResult;
 import com.kteck.utils.WebTools;
@@ -43,7 +43,6 @@ public class Worker implements Callable<ValidateResult> {
                     String.valueOf(resultMap.getOrDefault(WebTools.KEY_CONTENT, "")));
             validateResult.setSpeed(System.currentTimeMillis() - start);
         } catch (IOException e) {
-            e.printStackTrace();
             validateResult.setResultCode(999);
             validateResult.setResultContent(e.getMessage());
         }

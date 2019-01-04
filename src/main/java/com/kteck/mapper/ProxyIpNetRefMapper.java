@@ -1,12 +1,11 @@
 package com.kteck.mapper;
 
 import com.kteck.model.ProxyIpNetRef;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.type.JdbcType;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.type.JdbcType;
 
 public interface ProxyIpNetRefMapper {
     @Delete({
@@ -78,7 +77,7 @@ public interface ProxyIpNetRefMapper {
             "    proxy_ip_net_ref ref,\n" +
             "    proxy_ip ip\n" +
             "WHERE\n" +
-            "    ref.net_id = #{netId} AND ref.ip_id = ip.id\n" +
+            "    ref.net_id = #{netId} AND ref.ip_id = ip.id \n" +
             "    order by ref.score desc\n" +
             "LIMIT ${limits}"
     })
@@ -91,7 +90,7 @@ public interface ProxyIpNetRefMapper {
             "        i.id, COUNT(inf.id) total\n" +
             "    FROM\n" +
             "        proxy_net i\n" +
-            "    LEFT JOIN proxy_ip_net_ref inf ON i.id = inf.net_id AND inf.score < 10\n" +
+            "    LEFT JOIN proxy_ip_net_ref inf ON i.id = inf.net_id \n" +
             "    GROUP BY i.id\n" +
             "    HAVING total < 10) a"})
     @Results({@Result(column = "total", property = "total", jdbcType = JdbcType.INTEGER)})
@@ -109,4 +108,25 @@ public interface ProxyIpNetRefMapper {
 
     @Delete({"delete from proxy_ip_net_ref where score <=0 "})
     void deleteNotAvailableIpNetRef();
+    @Select({"SELECT \n" +
+            "    ip.id,\n" +
+            "    ip.ip,\n" +
+            "    ip.port,\n" +
+            "    ip.types,\n" +
+            "    ip.protocol,\n" +
+            "    ip.country,\n" +
+            "    ip.area,\n" +
+            "    ip.updatetime,\n" +
+            "    ref.score,\n" +
+            "    ref.speed\n" +
+            "FROM\n" +
+            "    proxy_ip_net_ref ref,\n" +
+            "    proxy_ip ip,\n" +
+            "    proxy_net net\n" +
+            "WHERE\n" +
+            "    net.url = #{url,jdbcType=VARCHAR}\n" +
+            "        AND ref.ip_id = ip.id\n" +
+            "        AND ref.net_id = net.id and ip.types like '%高匿%' \n" +
+            "ORDER BY ref.score DESC"})
+    List<Map<String, String>> getIpsByUrl(@Param("url") String url);
 }

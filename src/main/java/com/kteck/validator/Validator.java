@@ -1,17 +1,21 @@
 package com.kteck.validator;
 
-import com.kteck.model.ProxyIpNetRef;
-import com.kteck.service.ProxyService;
 import com.kteck.model.ProxyIp;
+import com.kteck.model.ProxyIpNetRef;
 import com.kteck.model.ProxyNet;
 import com.kteck.model.ValidateResult;
+import com.kteck.service.ProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Service
 public class Validator {
@@ -36,11 +40,11 @@ public class Validator {
                         try {
                             ValidateResult validateResult = validateResultFuture.get();
                             int responseCode = validateResult.getResultCode();
-                            if (responseCode == 999 || (responseCode + "").startsWith("5")
-                                    || (responseCode + "").startsWith("4") || (responseCode + "").startsWith("3")) {
+                            if (responseCode == 999 || responseCode == 521) {
                                 proxyIp.setScore((byte) (Integer.valueOf(proxyIp.getScore()) - 1));
+                                proxyIpNetRef.setSpeed(new BigDecimal(validateResult.getSpeed()));
                                 proxyService.updateProxyIp(proxyIp);
-                                proxyIpNetRef.setScore((byte)(Integer.valueOf(proxyIpNetRef.getScore())-1));
+                                proxyIpNetRef.setScore((byte) (Integer.valueOf(proxyIpNetRef.getScore()) - 1));
                                 proxyService.updateProxyIpNetRef(proxyIpNetRef);
                             }
                             System.out.println(validateResult.toString());
