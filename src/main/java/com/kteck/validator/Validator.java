@@ -36,6 +36,10 @@ public class Validator {
                         ProxyIpNetRef proxyIpNetRef = iterator.next();
                         ProxyIp proxyIp = proxyService.getProxyIpById(proxyIpNetRef.getIpId());
                         ProxyNet proxyNet = proxyService.getProxyNetById(proxyIpNetRef.getNetId());
+                        if(proxyIp == null || proxyNet == null){
+                            proxyService.deleteProxyIpRef(proxyIpNetRef.getId());
+                            continue;
+                        }
                         Future<ValidateResult> validateResultFuture = executor.submit(new Worker(proxyIpNetRef, proxyIp, proxyNet));
                         try {
                             ValidateResult validateResult = validateResultFuture.get();
