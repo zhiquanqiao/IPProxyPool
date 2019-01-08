@@ -30,6 +30,7 @@ public class ProxyService {
     private ProxysMapper proxysMapper;
     @Value("${score.each}")
     private byte eachScore;
+
     @Transactional
     public boolean insertNet(ProxyNet proxyNet) {
         proxyNetMapper.insert(proxyNet);
@@ -140,11 +141,15 @@ public class ProxyService {
     }
 
 
-    public List<Map<String,String>> getIpsByUrl(String url){
+    public List<Map<String, String>> getIpsByUrl(String url) {
         return proxyIpNetRefMapper.getIpsByUrl(url);
     }
 
     public void deleteProxyIpRef(Integer id) {
         proxyIpNetRefMapper.deleteByPrimaryKey(id);
+    }
+
+    public ProxyIpNetRef getProxyIpNetRefByIpAndNetsId(int ipId, int netId) {
+        return proxyIpNetRefMapper.getProxyIpNetRefByIpAndNetsId( ipId,  netId);
     }
 }

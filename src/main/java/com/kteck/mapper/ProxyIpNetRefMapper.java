@@ -8,6 +8,22 @@ import java.util.List;
 import java.util.Map;
 
 public interface ProxyIpNetRefMapper {
+
+    @Select({
+            "select",
+            "id, ip_id, net_id, score, speed",
+            "from proxy_ip_net_ref",
+            "where ip_id = #{ipId,jdbcType=INTEGER} and net_id = #{netId,jdbcType=INTEGER}"
+    })
+    @Results({
+            @Result(column = "id", property = "id", jdbcType = JdbcType.INTEGER, id = true),
+            @Result(column = "ip_id", property = "ipId", jdbcType = JdbcType.INTEGER),
+            @Result(column = "net_id", property = "netId", jdbcType = JdbcType.INTEGER),
+            @Result(column = "score", property = "score", jdbcType = JdbcType.TINYINT),
+            @Result(column = "speed", property = "speed", jdbcType = JdbcType.DECIMAL)
+    })
+    ProxyIpNetRef getProxyIpNetRefByIpAndNetsId(@Param("ipId") int ipId, @Param("netId") int netId);
+
     @Delete({
             "delete from proxy_ip_net_ref",
             "where id = #{id,jdbcType=INTEGER}"
@@ -108,6 +124,7 @@ public interface ProxyIpNetRefMapper {
 
     @Delete({"delete from proxy_ip_net_ref where score <=0 "})
     void deleteNotAvailableIpNetRef();
+
     @Select({"SELECT \n" +
             "    ip.id,\n" +
             "    ip.ip,\n" +
